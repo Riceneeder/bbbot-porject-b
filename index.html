@@ -1,0 +1,173 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <meta charset="UTF-8" />
+  <title>BBBot Project B</title>
+  <!-- https://developer.mozilla.org/en-US/docs/Web/HTTP/CSP -->
+  <link rel="stylesheet" href="./node_modules/mdui/dist/css/mdui.min.css">
+</head>
+<style>
+  #friendList,
+  #groupList {
+    overflow: scroll;
+    height: 430px;
+  }
+</style>
+
+<body class="mdui-theme-layout-auto">
+  <div class="mdui-toolbar mdui-color-grey" style="-webkit-app-region: drag;">
+    <span>BBBot Project B © Riceneeder | 每个群或好友之间有1s发送延迟，避免一次性发送频率高导致封号</span>
+    <div class="mdui-toolbar-spacer"></div>
+    <a href="javascript:window.electronAPI.min();" class="mdui-btn mdui-btn-icon" style="-webkit-app-region: no-drag;">
+      <i class="mdui-icon material-icons">remove</i>
+    </a>
+    <a href="javascript:window.close();" class="mdui-btn mdui-btn-icon" style="-webkit-app-region: no-drag;">
+      <i class="mdui-icon material-icons">close</i>
+    </a>
+  </div>
+  <div class="mdui-container-fluid">
+    <div class="mdui-row">
+      <!-- 左 用于放置好友、群列表 -->
+      <div class="mdui-col-xs-6">
+        <div class="mdui-tab mdui-tab-full-width" mdui-tab>
+          <a href="#friendList" class="mdui-ripple">好友</a>
+          <a href="#groupList" class="mdui-ripple">群组</a>
+        </div>
+
+        <div class="mdui-list mdui-p-a-2" id="friendList">
+        </div>
+
+        <div class="mdui-list mdui-p-a-2" id="groupList">
+        </div>
+      </div>
+      <!-- 右 用于放置输入框、选项、按钮 -->
+      <div class="mdui-col-xs-6">
+        <div class="mdui-textfield mdui-textfield-floating-label">
+          <label class="mdui-textfield-label">输入需要定时发送的消息</label>
+          <textarea class="mdui-textfield-input" id="message" rows="10"></textarea>
+        </div>
+
+        <div class="mdui-row">
+
+          <div class="mdui-col-xs-12">
+            <!-- 发送延迟 -->
+            <div class="mdui-textfield mdui-textfield-floating-label">
+              <label class="mdui-textfield-label">每隔多久发送一次消息(秒)</label>
+              <input class="mdui-textfield-input" type="number" id="delay" value="1" />
+            </div>
+          </div>
+
+        </div>
+        <button class="mdui-btn mdui-ripple mdui-btn-block mdui-color-teal" id="send" onclick="sendMsg()">保存设置并启用<i
+            class="mdui-icon material-icons" id="iconInSendMsg">save</i></button>
+        <div class="mdui-divider"></div>
+        <!-- 版权说明 -->
+        <br>
+        <div class="mdui-typo">
+          <blockquote>
+            <footer>❤️BBBot Project B 是一个简单的QQ定时群发器，免费且开源，如果您在任何地方看见此软件收费，请及时联系本作者❤️</footer>
+            <footer>感谢开源项目：<a href="https://github.com/takayama-lily/oicq" target="_blank">OICQ</a></footer>
+            <footer>BBBot Project B © <a href="https://github.com/riceneeder/" target="_blank">Riceneeder</a></footer>
+          </blockquote>
+        </div>
+      </div>
+    </div>
+</body>
+<script src="./node_modules/mdui/dist/js/mdui.min.js"></script>
+<script src="./dist/renderer.js"></script>
+<script>
+  window.onload = () => {
+    window.electronAPI.send('getFriendsAndGroupList');
+  }
+  window.electronAPI.on('FriendsAndGroupList', data => {
+    render(data.friends, data.groups);
+  })
+  function getGroupList() {
+    var groupList = [];
+    var groups = document.getElementsByName("groups");
+    for (var i = 0; i < groups.length; i++) {
+      if (groups[i].checked) {
+        groupList.push(parseInt(groups[i].dataset.groupsqq));
+      }
+    }
+    return groupList;
+  }
+  function getFriendList() {
+    var friendList = [];
+    var friends = document.getElementsByName("friends");
+    for (var i = 0; i < friends.length; i++) {
+      if (friends[i].checked) {
+        friendList.push(parseInt(friends[i].dataset.friendsqq));
+      }
+    }
+    return friendList;
+  }
+  function neatenMessage(message) {
+    return message.replace(/\n/g, "\n");
+  }
+  function getMessage() {
+    return neatenMessage(document.getElementById("message").value);
+  }
+  function getDelay() {
+    return document.getElementById("delay").value;
+  }
+  function neatenAllInfo() {
+    var groupList = getGroupList();
+    var friendList = getFriendList();
+    var message = getMessage();
+    var delay = getDelay();
+    return {
+      groupList: groupList,
+      friendList: friendList,
+      message: message,
+      delay: delay > 0 ? delay * 1000 : 1000,
+      turnon: true
+    };
+  }
+  function sendMsg() {
+
+    let info = neatenAllInfo();
+
+    if (info.groupList.length == 0 && info.friendList.length == 0) {
+      mdui.snackbar({
+        message: "请选择一个群或一个好友",
+        position: 'top'
+      });
+      return;
+    }
+    if (info.message == "") {
+      mdui.snackbar({
+        message: "请输入消息",
+        position: 'top'
+      });
+      return;
+    }
+
+    let Ture = () => {
+      // console.log('click3');
+      document.getElementById("send").innerHTML = '停止定时发送<i class="mdui-icon material-icons" id="iconInSendMsg">stop</i>';
+      mdui.snackbar({
+        message: "保存成功",
+        position: 'bottom'
+      });
+      info.turnon = true;
+    }
+
+    let False = () => {
+      document.getElementById("send").innerHTML = '保存设置并启用<i class="mdui-icon material-icons" id="iconInSendMsg">save</i>';
+      info.turnon = false;
+      // console.log('click3.5');
+    }
+
+
+    document.getElementById("iconInSendMsg").innerText == 'save' ? Ture() : False();
+
+    window.electronAPI.send('sendMessage', [info]);
+
+  }
+
+
+</script>
+
+</html>

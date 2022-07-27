@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="./node_modules/mdui/dist/css/mdui.min.css">
+    <title>login-step-one</title>
+</head>
+
+<body class="mdui-theme-layout-auto">
+    <div class="mdui-toolbar mdui-color-grey" style="-webkit-app-region: drag;">
+        <span>BBBot Project B © Riceneeder</span>
+        <div class="mdui-toolbar-spacer"></div>
+        <a href="javascript:window.close();" class="mdui-btn mdui-btn-icon" style="-webkit-app-region: no-drag;">
+            <i class="mdui-icon material-icons">close</i>
+        </a>
+    </div>
+    <div class="mdui-container-fluid">
+        <div class="mdui-textfield">
+            <i class="mdui-icon material-icons">account_circle</i>
+            <label class="mdui-textfield-label">输入QQ号</label>
+            <input class="mdui-textfield-input" type="text" id="QQnumber" required pattern="\d*">
+            <div class="mdui-textfield-error">QQ不能为空或包含非数字</div>
+            <div class="mdui-textfield-helper">使用纯数字QQ号</div>
+        </div>
+
+        <div class="mdui-center mdui-container-fluid">
+            <label class="mdui-radio">
+                <input type="radio" name="group1" data-agreement="1"/>
+                <i class="mdui-radio-icon"></i>
+                Android协议
+            </label>
+            <label class="mdui-radio mdui-m-l-1">
+                <input type="radio" name="group1" data-agreement="4" checked/>
+                <i class="mdui-radio-icon"></i>
+                Mac协议
+            </label>
+            <label class="mdui-radio mdui-m-l-1">
+                <input type="radio" name="group1" data-agreement="5"/>
+                <i class="mdui-radio-icon"></i>
+                Ipad协议
+            </label>
+
+        </div>
+
+        <button class="mdui-btn mdui-btn-block mdui-color-teal mdui-ripple" id="jumpToNextStep" onclick="Submit()" disabled>
+            <i class="mdui-icon mdui-icon-left material-icons">check</i>
+            下一步
+        </button>
+    </div>
+</body>
+<script src="./node_modules/mdui/dist/js/mdui.min.js"></script>
+<script>
+    const QQnumberInput = document.getElementById('QQnumber');
+    const jumpToNextStep = document.getElementById('jumpToNextStep');
+    QQnumberInput.oninput = function () {
+        if (QQnumberInput.value.length == 0) {
+            jumpToNextStep.disabled = true;
+        } else {
+            jumpToNextStep.disabled = false;
+        }
+    };
+    function getQQnumber() {
+        return QQnumberInput.value;
+    }
+    function getRadioData(name) {
+        var radios = document.getElementsByName(name);
+        for (var i = 0, length = radios.length; i < length; i++) {
+            if (radios[i].checked) {
+                return radios[i].dataset.agreement;
+            }
+        }
+        return null;
+    }
+
+    function Submit() {
+        var QQnumber = getQQnumber();
+        var agreement = getRadioData('group1');
+        var config={
+            'QQnumber':QQnumber,
+            'agreement':agreement
+        };
+        window.electronAPI.send('accountInfo',[{account:config}]);
+    }
+</script>
+
+</html>

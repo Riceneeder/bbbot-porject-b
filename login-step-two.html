@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="./node_modules/mdui/dist/css/mdui.min.css">
+    <title>login-step-two</title>
+</head>
+
+<body class="mdui-theme-layout-auto">
+    <div class="mdui-card" style="-webkit-app-region: drag;">
+        <div class="mdui-card-media" id="Qrcode">
+
+        </div>
+        <div class="mdui-card-content mdui-text-center">
+            使用手机QQ扫码登录
+        </div>
+    </div>
+    <button class="mdui-btn mdui-btn-block mdui-color-theme-accent mdui-ripple" onclick="refreshQrcode()">刷新二维码</button>
+    <button class="mdui-btn mdui-btn-block mdui-color-theme-accent mdui-ripple" onclick="window.close()">退出程序</button>
+</body>
+<script src="./node_modules/mdui/dist/js/mdui.min.js"></script>
+<script>
+    window.onload = () => {
+        window.electronAPI.getQrcode();
+    }
+    window.electronAPI.on('qrcode.path', drawQrcode);
+    window.electronAPI.on('system.login.success', window.close);
+
+    function drawQrcode(path) {
+        document.getElementById('Qrcode').innerHTML = `<img src="${path}" />`;
+    }
+
+    function refreshQrcode() {
+        location.reload();
+    }
+
+</script>
+
+</html>

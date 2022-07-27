@@ -1,0 +1,32 @@
+{
+  "name": "bbbot-porject-b",
+  "version": "1.0.0",
+  "main": "./dist/main.js",
+  "description": "QQ定时群发消息图形工具",
+  "scripts": {
+    "build": "tsc",
+    "watch": "tsc -w",
+    "start": "yarn run build && electron ./dist/main.js",
+    "release": "yarn run build && electron-packager ./ bbbotPorjectB --platform=win32 --arch=x64 --icon=./assets/icon.ico --out=./release --overwrite",
+    "release.asar": "yarn run build && electron-packager ./ bbbotPorjectB --platform=win32 --arch=x64 --icon=./assets/icon.ico --out=./release --overwrite --asar"
+  },
+  "repository": "https://github.com/Riceneeder/bbbot-porject-b",
+  "keywords": [
+    "Electron",
+    "群发消息",
+    "QQ",
+    "oicq",
+    "typescript"
+  ],
+  "author": "Riceneeder",
+  "license": "CC0-1.0",
+  "devDependencies": {
+    "electron": "^18.2.3",
+    "electron-packager": "^15.5.1",
+    "typescript": "^4.7.2"
+  },
+  "dependencies": {
+    "mdui": "^1.0.2",
+    "oicq": "^2.3.1"
+  }
+}
